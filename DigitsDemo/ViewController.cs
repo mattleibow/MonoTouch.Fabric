@@ -17,7 +17,7 @@ namespace DigitsDemo
 			base.ViewDidLoad ();
 			// Perform any additional setup after loading the view, typically from a nib.
 
-			var authButton = DGTAuthenticateButton.ButtonWithAuthenticationCompletion((DGTSession session, NSError error) =>
+			var authButton = AuthenticateButton.Create((Session session, NSError error) =>
 				{
 					if (session != null && !string.IsNullOrEmpty(session.UserID))
 					{

@@ -5,7 +5,7 @@ namespace MonoTouch.Fabric.Digits
 {
 	[Native]
 //	public enum DGTErrorCode : nint
-	public enum DGTErrorCode : long
+	public enum ErrorCode : long
 	{
 		UnspecifiedError = 0,
 		UserCanceledAuthentication = 1,
@@ -23,7 +23,7 @@ namespace MonoTouch.Fabric.Digits
 
 	[Native]
 //	public enum DGTContactAccessAuthorizationStatus : nint
-	public enum DGTContactAccessAuthorizationStatus : long
+	public enum ContactAccessAuthorizationStatus : long
 	{
 		Pending = 0,
 		Denied = 1,
@@ -31,7 +31,7 @@ namespace MonoTouch.Fabric.Digits
 	}
 
 	[Native]
-	public enum DGTAccountFields : long {
+	public enum AccountFields : long {
 		None = 1,
 		Email = 2
 	}

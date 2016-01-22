@@ -9,21 +9,19 @@ using MonoTouch.Fabric.TwitterCore;
 namespace MonoTouch.Fabric.Digits
 {
 	// @interface DGTAPIClient : NSObject
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTAPIClient {
-		// - (instancetype)init;
-//		[Export ("init")]
-//		IntPtr Constructor ();
-
+	[BaseType (typeof(NSObject), Name = "DGTAPIClient")]
+	public partial interface APIClient {
 		// -(void)authenticateWithConfiguration:(DGTAuthenticationConfiguration *)configuration delegate:(id<DGTAPIAuthenticationDelegate>)authDelegate completion:(DGTAuthenticationCompletion)completionBlock;
 		[Export ("authenticateWithConfiguration:delegate:completion:")]
-		void AuthenticateWithConfiguration(DGTAuthenticationConfiguration configuration, DGTAPIAuthenticationDelegate authDelegate, DGTAuthenticationCompletion completionBlock);
+		void Authenticate(AuthenticationConfiguration configuration, IAPIAuthenticationDelegate authDelegate, AuthenticationCompletion completionBlock);
 	}
+
+	public interface IAPIAuthenticationDelegate { }
 
 	// @protocol DGTAPIAuthenticationDelegate <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTAPIAuthenticationDelegate {
+	[BaseType (typeof(NSObject), Name = "DGTAPIAuthenticationDelegate")]
+	public partial interface APIAuthenticationDelegate {
 		// @required -(void)challengeViewController:(UIViewController<DGTAPIChallengeDelegate> *)challengeViewController error:(NSError *)error;
 		[Abstract]
 		[Export ("challengeViewController:error:")]
@@ -39,8 +37,8 @@ namespace MonoTouch.Fabric.Digits
 	}
 
 	// @interface DGTAppearance : NSObject <NSCopying>
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTAppearance : INSCopying {
+	[BaseType (typeof(NSObject), Name = "DGTAppearance")]
+	public partial interface Appearance : INSCopying {
 		// @property (nonatomic, strong) UIColor * backgroundColor;
 		[Export ("backgroundColor", ArgumentSemantic.Strong)]
 		UIColor BackgroundColor { get; set; }
@@ -67,25 +65,25 @@ namespace MonoTouch.Fabric.Digits
 	}
 
 	// @interface DGTAuthenticateButton : UIButton
-	[BaseType (typeof(UIButton))]
-	public partial interface DGTAuthenticateButton {
+	[BaseType (typeof(UIButton), Name = "DGTAuthenticateButton")]
+	public partial interface AuthenticateButton {
 		// + (instancetype)buttonWithAuthenticationCompletion:(DGTAuthenticationCompletion)completion;
 		[Static]
 		[Export ("buttonWithAuthenticationCompletion:")]
-		DGTAuthenticateButton ButtonWithAuthenticationCompletion(DGTAuthenticationCompletion completion);
+		AuthenticateButton Create(AuthenticationCompletion completion);
 
 		// @property (nonatomic, copy) DGTAppearance *digitsAppearance;
 		[Export ("digitsAppearance", ArgumentSemantic.Copy)]
-		DGTAppearance DigitsAppearance { get; set; }
+		Appearance DigitsAppearance { get; set; }
 	}
 		
 	// @interface DGTAuthenticationConfiguration : NSObject <NSCopying>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "DGTAuthenticationConfiguration")]
 	[DisableDefaultCtor]
-	public partial interface DGTAuthenticationConfiguration : INSCopying {
+	public partial interface AuthenticationConfiguration : INSCopying {
 		// @property (nonatomic, strong) DGTAppearance *appearance;
 		[Export ("appearance", ArgumentSemantic.Strong)]
-		DGTAppearance Appearance { get; set; }
+		Appearance Appearance { get; set; }
 
 		// @property (nonatomic, strong) NSString *phoneNumber;
 		[ExportAttribute ("phoneNumber", ArgumentSemantic.Strong)]
@@ -97,69 +95,71 @@ namespace MonoTouch.Fabric.Digits
 
 		// -(instancetype)initWithAccountFields:(DGTAccountFields)accountFields;
 		[Export ("initWithAccountFields:")]
-		IntPtr Constructor (DGTAccountFields accountFields);
+		IntPtr Constructor (AccountFields accountFields);
 	}
 		
+	public interface ICompletionViewController { }
+
 	// @protocol DGTCompletionViewController <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTCompletionViewController {
+	[BaseType (typeof(NSObject), Name = "DGTCompletionViewController")]
+	public partial interface CompletionViewController {
 		// -(void)digitsAuthenticationFinishedWithSession:(DGTSession *)session error:(NSError *)error;
 		[Export ("digitsAuthenticationFinishedWithSession:error:")]
-		void DigitsAuthenticationFinishedWithSession(DGTSession session, NSError error);
+		void DigitsAuthenticationFinished(Session session, NSError error);
 	}
 
 	// typedef void (^DGTUploadContactsCompletion)(DGTContactsUploadResult *result, NSError *error);
-	public delegate void DGTUploadContactsCompletion(DGTContactsUploadResult result, NSError error);
+	public delegate void UploadContactsCompletion(ContactsUploadResult result, NSError error);
 
 	// typedef void (^DGTLookupContactsCompletion)(NSArray *matches, NSString *nextCursor, NSError *error);
-	public delegate void DGTLookupContactsCompletion(NSArray matches, string nextCursor, NSError error);
+	public delegate void LookupContactsCompletion(NSArray matches, string nextCursor, NSError error);
 
 	// typedef void (^DGTDeleteAllUploadedContactsCompletion)(NSError *error);
-	public delegate void DGTDeleteAllUploadedContactsCompletion(NSError error);
+	public delegate void DeleteAllUploadedContactsCompletion(NSError error);
 
 	// @interface DGTContacts : NSObject
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "DGTContacts")]
 	[DisableDefaultCtor]
-	public partial interface DGTContacts {
+	public partial interface Contacts {
 		// + (DGTContactAccessAuthorizationStatus)contactsAccessAuthorizationStatus;
 		[Static]
 		[Export ("contactsAccessAuthorizationStatus")]
-		DGTContactAccessAuthorizationStatus ContactsAccessAuthorizationStatus { get; }
+		ContactAccessAuthorizationStatus AccessAuthorizationStatus { get; }
 
 		// - (instancetype)initWithUserSession:(DGTSession *)userSession;
 		[Export ("initWithUserSession:")]
-		IntPtr Constructor (DGTSession userSession);
+		IntPtr Constructor (Session userSession);
 
 		// - (void)startContactsUploadWithCompletion:(DGTUploadContactsCompletion)completion;
 		[Export ("startContactsUploadWithCompletion:")]
-		void StartContactsUploadWithCompletion(DGTUploadContactsCompletion completion);
+		void StartContactsUpload(UploadContactsCompletion completion);
 
 		// - (void)startContactsUploadWithTitle:(NSString *)title completion:(DGTUploadContactsCompletion)completion;
 		[Export ("startContactsUploadWithTitle:completion:")]
-		void StartContactsUploadWithTitle(string title, DGTUploadContactsCompletion completion);
+		void StartContactsUpload(string title, UploadContactsCompletion completion);
 
 		// - (void)startContactsUploadWithPresenterViewController:(UIViewController *)presenterViewController title:(NSString *)title completion:(DGTUploadContactsCompletion)completion;
 		[Export ("startContactsUploadWithPresenterViewController:title:completion:")]
-		void StartContactsUploadWithPresenterViewController(UIViewController presenterViewController, string title, DGTUploadContactsCompletion completion);
+		void StartContactsUpload(UIViewController presenterViewController, string title, UploadContactsCompletion completion);
 
 		// - (void)startContactsUploadWithDigitsAppearance:(DGTAppearance *)appearance presenterViewController:(UIViewController *)presenterViewController title:(NSString *)title completion:(DGTUploadContactsCompletion)completion;
 		[Export ("startContactsUploadWithDigitsAppearance:presenterViewController:title:completion:")]
-		void StartContactsUploadWithDigitsAppearance(DGTAppearance appearance, UIViewController presenterViewController, string title, DGTUploadContactsCompletion completion);
+		void StartContactsUpload(Appearance appearance, UIViewController presenterViewController, string title, UploadContactsCompletion completion);
 
 		// - (void)lookupContactMatchesWithCursor:(NSString *)cursor completion:(DGTLookupContactsCompletion)completion;
 		[Export ("lookupContactMatchesWithCursor:completion:")]
-		void LookupContactMatchesWithCursor(string cursor, DGTLookupContactsCompletion completion);
+		void LookupContactMatches(string cursor, LookupContactsCompletion completion);
 
 		// - (void)deleteAllUploadedContactsWithCompletion:(DGTDeleteAllUploadedContactsCompletion)completion;
 		[Export ("deleteAllUploadedContactsWithCompletion:")]
-		void DeleteAllUploadedContactsWithCompletion(DGTDeleteAllUploadedContactsCompletion completion);
+		void DeleteAllUploadedContacts(DeleteAllUploadedContactsCompletion completion);
 	}
 
 	// @interface DGTContactsUploadResult : NSObject
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "DGTContactsUploadResult")]
 	[DisableDefaultCtor]
-	public partial interface DGTContactsUploadResult {
+	public partial interface ContactsUploadResult {
 		// @property (nonatomic, readonly) NSUInteger totalContacts;
 		[Export ("totalContacts")]
 		nuint TotalContacts { get; }
@@ -174,27 +174,27 @@ namespace MonoTouch.Fabric.Digits
 	{
 		// extern NSString *const DGTErrorDomain;
 		[Field ("DGTErrorDomain", "__Internal")]
-		NSString DGTErrorDomain { get; }
+		NSString ErrorDomain { get; }
 	}
 
 	// @interface DGTOAuthSigning : NSObject <TWTRCoreOAuthSigning>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "DGTOAuthSigning")]
 	[DisableDefaultCtor]
-	public partial interface DGTOAuthSigning : ITWTRCoreOAuthSigning {
+	public partial interface OAuthSigning : ICoreOAuthSigning {
 		// - (instancetype)initWithAuthConfig:(TWTRAuthConfig *)authConfig authSession:(DGTSession *)authSession NS_DESIGNATED_INITIALIZER;
 		[Export ("initWithAuthConfig:authSession:")]
-		IntPtr Constructor (TWTRAuthConfig authConfig, DGTSession authSession);
+		IntPtr Constructor (AuthConfig authConfig, Session authSession);
 
 		// - (NSDictionary *)OAuthEchoHeadersToVerifyCredentialsWithParams:(NSDictionary *)params;
 		[Export ("OAuthEchoHeadersToVerifyCredentialsWithParams:")]
-		NSDictionary OAuthEchoHeadersToVerifyCredentialsWithParams(NSDictionary parameters);
+		NSDictionary GetHeadersToVerifyCredentials(NSDictionary parameters);
 	}
 
 
 	// @interface DGTSession : NSObject <TWTRAuthSession>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "DGTSession")]
 	[DisableDefaultCtor]
-	public partial interface DGTSession : ITWTRAuthSession, INSCoding {
+	public partial interface Session : IAuthSession, INSCoding {
 		// @property (nonatomic, copy, readonly) NSString *authToken;
 		[ExportAttribute ("authToken", ArgumentSemantic.Copy)]
 		string AuthToken { get; }
@@ -229,16 +229,18 @@ namespace MonoTouch.Fabric.Digits
 	}
 
 	// typedef void (^DGTAuthenticationCompletion)(DGTSession *, NSError *);
-	public delegate void DGTAuthenticationCompletion (DGTSession session, NSError error);
+	public delegate void AuthenticationCompletion (Session session, NSError error);
+
+	public interface ISessionUpdateDelegate { }
 
 	// @protocol DGTSessionUpdateDelegate <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTSessionUpdateDelegate {
+	[BaseType (typeof(NSObject), Name = "DGTSessionUpdateDelegate")]
+	public partial interface SessionUpdateDelegate {
 		// -(void)digitsSessionHasChanged:(DGTSession *)newSession;
 		[Abstract]
 		[Export ("digitsSessionHasChanged:")]
-		void DigitsSessionHasChanged(DGTSession newSession);
+		void DigitsSessionHasChanged(Session newSession);
 
 		// -(void)digitsSessionExpiredForUserID:(NSString *)userID;
 		[Abstract]
@@ -247,15 +249,15 @@ namespace MonoTouch.Fabric.Digits
 	}
 
 	// @interface DGTUser : NSObject
-	[BaseType (typeof(NSObject))]
-	public partial interface DGTUser {
+	[BaseType (typeof(NSObject), Name = "DGTUser")]
+	public partial interface User {
 		// @property (nonatomic, copy, readonly) NSString *userID;
 		[Export ("userID", ArgumentSemantic.Copy)]
 		string UserID { get; }
 	}
 
 	// @interface Digits : NSObject
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "Digits")]
 	partial interface Digits
 	{
 		// +(Digits * _Nonnull)sharedInstance;
@@ -273,51 +275,47 @@ namespace MonoTouch.Fabric.Digits
 
 		// -(id)session;
 		[Export ("session")]
-		DGTSession Session { get; }
+		Session Session { get; }
 
 		// @property (readonly, nonatomic, strong) TWTRAuthConfig * _Nonnull authConfig;
 		[Export ("authConfig", ArgumentSemantic.Strong)]
-		TWTRAuthConfig AuthConfig { get; }
-
-		[Wrap ("WeakSessionUpdateDelegate")]
-		[NullAllowed]
-		DGTSessionUpdateDelegate SessionUpdateDelegate { get; set; }
+		AuthConfig AuthConfig { get; }
 
 		// @property (nonatomic, weak) id<DGTSessionUpdateDelegate> _Nullable sessionUpdateDelegate;
 		[NullAllowed, Export ("sessionUpdateDelegate", ArgumentSemantic.Weak)]
-		NSObject WeakSessionUpdateDelegate { get; set; }
+		ISessionUpdateDelegate SessionUpdateDelegate { get; set; }
 
 		// -(void)authenticateWithCompletion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable)));
 		[Export ("authenticateWithCompletion:")]
-		void AuthenticateWithCompletion (DGTAuthenticationCompletion completion);
+		void Authenticate (AuthenticationCompletion completion);
 
 		// -(void)authenticateWithTitle:(id)title completion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable))) __attribute__((deprecated("Use authenticateWithViewController:configuration:completion: instead.")));
 		[Export ("authenticateWithTitle:completion:")]
-		void AuthenticateWithTitle (NSObject title, DGTAuthenticationCompletion completion);
+		void Authenticate (NSObject title, AuthenticationCompletion completion);
 
 		// -(void)authenticateWithViewController:(id)viewController title:(id)title completion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable))) __attribute__((deprecated("Use authenticateWithViewController:configuration:completion: instead.")));
 		[Export ("authenticateWithViewController:title:completion:")]
-		void AuthenticateWithViewController (NSObject viewController, NSObject title, DGTAuthenticationCompletion completion);
+		void Authenticate (NSObject viewController, NSObject title, AuthenticationCompletion completion);
 
 		// -(void)authenticateWithDigitsAppearance:(id)appearance viewController:(id)viewController title:(id)title completion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable))) __attribute__((deprecated("Use authenticateWithViewController:configuration:completion: instead.")));
 		[Export ("authenticateWithDigitsAppearance:viewController:title:completion:")]
-		void AuthenticateWithDigitsAppearance (NSObject appearance, NSObject viewController, NSObject title, DGTAuthenticationCompletion completion);
+		void Authenticate (NSObject appearance, NSObject viewController, NSObject title, AuthenticationCompletion completion);
 
 		// -(void)authenticateWithPhoneNumber:(id)phoneNumber digitsAppearance:(id)appearance viewController:(id)viewController title:(id)title completion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable))) __attribute__((deprecated("Use authenticateWithViewController:configuration:completion: instead.")));
 		[Export ("authenticateWithPhoneNumber:digitsAppearance:viewController:title:completion:")]
-		void AuthenticateWithPhoneNumber (NSObject phoneNumber, NSObject appearance, NSObject viewController, NSObject title, DGTAuthenticationCompletion completion);
+		void Authenticate (NSObject phoneNumber, NSObject appearance, NSObject viewController, NSObject title, AuthenticationCompletion completion);
 
 		// -(void)authenticateWithNavigationViewController:(UINavigationController * _Nonnull)navigationController phoneNumber:(id)phoneNumber digitsAppearance:(id)appearance title:(id)title completionViewController:(UIViewController<DGTCompletionViewController> * _Nonnull)completionViewController __attribute__((availability(tvos, unavailable))) __attribute__((deprecated("Use authenticateWithNavigationViewController:configuration:completionViewController: instead.")));
 		[Export ("authenticateWithNavigationViewController:phoneNumber:digitsAppearance:title:completionViewController:")]
-		void AuthenticateWithNavigationViewController (UINavigationController navigationController, NSObject phoneNumber, NSObject appearance, NSObject title, DGTCompletionViewController completionViewController);
+		void Authenticate (UINavigationController navigationController, NSObject phoneNumber, NSObject appearance, NSObject title, ICompletionViewController completionViewController);
 
 		// -(void)authenticateWithViewController:(id)viewController configuration:(DGTAuthenticationConfiguration * _Nonnull)configuration completion:(DGTAuthenticationCompletion _Nonnull)completion __attribute__((availability(tvos, unavailable)));
 		[Export ("authenticateWithViewController:configuration:completion:")]
-		void AuthenticateWithViewController (NSObject viewController, DGTAuthenticationConfiguration configuration, DGTAuthenticationCompletion completion);
+		void Authenticate (NSObject viewController, AuthenticationConfiguration configuration, AuthenticationCompletion completion);
 
 		// -(void)authenticateWithNavigationViewController:(UINavigationController * _Nonnull)navigationController configuration:(DGTAuthenticationConfiguration * _Nonnull)configuration completionViewController:(UIViewController<DGTCompletionViewController> * _Nonnull)completionViewController __attribute__((availability(tvos, unavailable)));
 		[Export ("authenticateWithNavigationViewController:configuration:completionViewController:")]
-		void AuthenticateWithNavigationViewController (UINavigationController navigationController, DGTAuthenticationConfiguration configuration, DGTCompletionViewController completionViewController);
+		void Authenticate (UINavigationController navigationController, AuthenticationConfiguration configuration, ICompletionViewController completionViewController);
 
 		// -(void)logOut;
 		[Export ("logOut")]

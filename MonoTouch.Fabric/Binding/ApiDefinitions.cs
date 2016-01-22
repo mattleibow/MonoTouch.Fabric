@@ -15,20 +15,19 @@ namespace MonoTouch.Fabric
 	// 6. Build project
 
 	//	 @interface Fabric : NSObject
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "Fabric")]
 	[DisableDefaultCtor]
 	public partial interface Fabric
 	{
 		// +(instancetype _Nonnull)with:(NSArray * _Nonnull)kitClasses;
 		[Static]
 		[Export ("with:")]
-		//		[Verify (StronglyTypedNSArray)]
-		Fabric With (NSObject[] kitClasses);
+		Fabric With (params ObjCRuntime.Class[] kitClasses);
 
 		// +(instancetype _Nonnull)sharedSDK;
 		[Static]
 		[Export ("sharedSDK")]
-		Fabric SharedSDK ();
+		Fabric SharedSDK { get; }
 
 		// @property (assign, nonatomic) BOOL debug;
 		[Export ("debug")]

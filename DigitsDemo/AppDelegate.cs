@@ -27,7 +27,7 @@ namespace DigitsDemo
 				"consumer_secret"
 			);
 
-			Fabric.With(new NSObject[]{ digitsKit });
+			Fabric.With(typeof(Digits));
 
 			return true;
 		}

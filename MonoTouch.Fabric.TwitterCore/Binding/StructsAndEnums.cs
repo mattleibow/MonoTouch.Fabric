@@ -5,7 +5,7 @@ using ObjCRuntime;
 namespace MonoTouch.Fabric.TwitterCore {
 	[Native]
 //	public enum TWTRAPIErrorCode : nuint
-	public enum TWTRAPIErrorCode : ulong
+	public enum APIErrorCode : ulong
 	{
 		CouldNotAuthenticate = 32,
 		PageNotExist = 34,
@@ -37,7 +37,7 @@ namespace MonoTouch.Fabric.TwitterCore {
 
 	[Native]
 //	public enum TWTRErrorCode : nint
-	public enum TWTRErrorCode : long
+	public enum ErrorCode : long
 	{
 		Unknown = -1,
 		NoAuthentication = 0,
@@ -55,7 +55,7 @@ namespace MonoTouch.Fabric.TwitterCore {
 
 	[Native]
 //	public enum TWTRLogInErrorCode : nint
-	public enum TWTRLogInErrorCode : long
+	public enum LogInErrorCode : long
 	{
 		Unknown = -1,
 		Denied = 0,

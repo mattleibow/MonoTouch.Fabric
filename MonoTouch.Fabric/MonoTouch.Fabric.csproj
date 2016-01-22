@@ -38,12 +38,14 @@
     <Folder Include="Resources\" />
     <Folder Include="Headers\" />
     <Folder Include="Binding\" />
+    <Folder Include="Additions\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Fabric.linkwith.cs">
       <DependentUpon>Fabric.a</DependentUpon>
     </Compile>
+    <Compile Include="Additions\Fabric.cs" />
   </ItemGroup>
   <ItemGroup>
     <ObjcBindingApiDefinition Include="Binding\ApiDefinitions.cs" />

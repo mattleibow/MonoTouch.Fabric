@@ -37,12 +37,14 @@
   <ItemGroup>
     <Folder Include="Resources\" />
     <Folder Include="Headers\" />
+    <Folder Include="Additions\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\TwitterCore.linkwith.cs">
       <DependentUpon>TwitterCore.a</DependentUpon>
     </Compile>
+    <Compile Include="Additions\TwitterCore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.ObjCBinding.CSharp.targets" />
   <ItemGroup>

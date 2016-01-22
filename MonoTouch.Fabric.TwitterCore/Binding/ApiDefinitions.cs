@@ -6,18 +6,25 @@ using ObjCRuntime;
 
 namespace MonoTouch.Fabric.TwitterCore {
 	[Static]
-//	[Verify (ConstantsInterfaceAssociation)]
 	partial interface Constants
 	{
+		// extern NSString *const TWTRErrorDomain;
+		[Field ("TWTRErrorDomain", "__Internal")]
+		NSString ErrorDomain { get; }
+
 		// extern NSString *const TWTRAPIErrorDomain;
 		[Field ("TWTRAPIErrorDomain", "__Internal")]
-		NSString TWTRAPIErrorDomain { get; }
+		NSString APIErrorDomain { get; }
+
+		// extern NSString *const TWTRLogInErrorDomain;
+		[Field ("TWTRLogInErrorDomain", "__Internal")]
+		NSString LogInErrorDomain { get; }
 	}
 
 	// @interface TWTRAuthConfig : NSObject
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "TWTRAuthConfig")]
 	[DisableDefaultCtor]
-	public partial interface TWTRAuthConfig
+	public partial interface AuthConfig
 	{
 		// @property (readonly, copy, nonatomic) NSString * consumerKey;
 		[Export ("consumerKey")]
@@ -32,17 +39,21 @@ namespace MonoTouch.Fabric.TwitterCore {
 		IntPtr Constructor (string consumerKey, string consumerSecret);
 	}
 
+	public interface IBaseSession { }
+
 	// @protocol TWTRBaseSession <NSObject, NSCoding>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRBaseSession : INSCoding
+	[BaseType (typeof(NSObject), Name = "TWTRBaseSession")]
+	public partial interface BaseSession : INSCoding
 	{
 	}
 
+	public interface IAuthSession { }
+
 	// @protocol TWTRAuthSession <TWTRBaseSession>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRAuthSession : TWTRBaseSession
+	[BaseType (typeof(NSObject), Name = "TWTRAuthSession")]
+	public partial interface AuthSession : BaseSession
 	{
 		// @required @property (readonly, copy, nonatomic) NSString * authToken;
 		[Export ("authToken")]
@@ -57,61 +68,41 @@ namespace MonoTouch.Fabric.TwitterCore {
 		string UserID { get; }
 	}
 
-//	[Static]
-//	[Verify (ConstantsInterfaceAssociation)]
-	partial interface Constants
-	{
-		// extern NSString *const TWTRErrorDomain;
-		[Field ("TWTRErrorDomain", "__Internal")]
-		NSString TWTRErrorDomain { get; }
-	}
-
-//	[Static]
-//	[Verify (ConstantsInterfaceAssociation)]
-	partial interface Constants
-	{
-		// extern NSString *const TWTRLogInErrorDomain;
-		[Field ("TWTRLogInErrorDomain", "__Internal")]
-		NSString TWTRLogInErrorDomain { get; }
-	}
-
-//	[Static]
-//	[Verify (ConstantsInterfaceAssociation)]
-	partial interface Constants
-	{
-		// extern NSString *const TWTROAuthEchoRequestURLStringKey;
-		[Field ("TWTROAuthEchoRequestURLStringKey", "__Internal")]
-		NSString TWTROAuthEchoRequestURLStringKey { get; }
-
-		// extern NSString *const TWTROAuthEchoAuthorizationHeaderKey;
-		[Field ("TWTROAuthEchoAuthorizationHeaderKey", "__Internal")]
-		NSString TWTROAuthEchoAuthorizationHeaderKey { get; }
-	}
+	public interface ICoreOAuthSigning { }
 
 	// @protocol TWTRCoreOAuthSigning <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRCoreOAuthSigning
+	[BaseType (typeof(NSObject), Name = "TWTRCoreOAuthSigning")]
+	public partial interface CoreOAuthSigning
 	{
+		// extern NSString *const TWTROAuthEchoRequestURLStringKey;
+		[Static]
+		[Field ("TWTROAuthEchoRequestURLStringKey", "__Internal")]
+		NSString URLStringKey { get; }
+
+		// extern NSString *const TWTROAuthEchoAuthorizationHeaderKey;
+		[Static]
+		[Field ("TWTROAuthEchoAuthorizationHeaderKey", "__Internal")]
+		NSString AuthorizationHeaderKey { get; }
+
 		// @required -(NSDictionary *)OAuthEchoHeadersForRequestMethod:(NSString *)method URLString:(NSString *)URLString parameters:(NSDictionary *)parameters error:(NSError **)error __attribute__((nonnull(0, 1)));
 		[Abstract]
 		[Export ("OAuthEchoHeadersForRequestMethod:URLString:parameters:error:")]
-		NSDictionary URLString (string method, string URLString, NSDictionary parameters, out NSError error);
+		NSDictionary GetOAuthEchoHeaders (string method, string URLString, NSDictionary parameters, out NSError error);
 
 		// @required -(NSDictionary *)OAuthEchoHeadersToVerifyCredentials;
 		[Abstract]
 		[Export ("OAuthEchoHeadersToVerifyCredentials")]
-//		[Verify (MethodToProperty)]
-		NSDictionary OAuthEchoHeadersToVerifyCredentials { get; }
+		NSDictionary GetOAuthEchoHeadersToVerifyCredentials ();
 	}
 
 	// typedef void (^TWTRGuestLogInCompletion)(TWTRGuestSession * _Nullable, NSError * _Nullable);
-	delegate void TWTRGuestLogInCompletion ([NullAllowed] TWTRGuestSession arg0, [NullAllowed] NSError arg1);
+	public delegate void GuestLogInCompletion ([NullAllowed] GuestSession guestSession, [NullAllowed] NSError error);
 
 	// @interface TWTRGuestSession : NSObject <TWTRBaseSession>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "TWTRGuestSession")]
 	[DisableDefaultCtor]
-	public partial interface TWTRGuestSession : TWTRBaseSession
+	public partial interface GuestSession : BaseSession
 	{
 		// @property (readonly, copy, nonatomic) NSString * _Nonnull accessToken;
 		[Export ("accessToken")]
@@ -132,12 +123,12 @@ namespace MonoTouch.Fabric.TwitterCore {
 	}
 
 	// typedef void (^TWTRLogInCompletion)(TWTRSession * _Nullable, NSError * _Nullable);
-	delegate void TWTRLogInCompletion ([NullAllowed] TWTRSession arg0, [NullAllowed] NSError arg1);
+	public delegate void LogInCompletion ([NullAllowed] Session session, [NullAllowed] NSError error);
 
 	// @interface TWTRSession : NSObject <TWTRAuthSession>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "TWTRSession")]
 	[DisableDefaultCtor]
-	public partial interface TWTRSession : TWTRAuthSession
+	public partial interface Session : AuthSession
 	{
 		// @property (readonly, copy, nonatomic) NSString * _Nonnull authToken;
 		[Export ("authToken")]
@@ -166,17 +157,19 @@ namespace MonoTouch.Fabric.TwitterCore {
 	}
 
 	// typedef void (^TWTRSessionStoreRefreshCompletion)(id _Nullable, NSError * _Nullable);
-	public delegate void TWTRSessionStoreRefreshCompletion ([NullAllowed] NSObject arg0, [NullAllowed] NSError arg1);
+	public delegate void SessionStoreRefreshCompletion ([NullAllowed] NSObject refreshedSession, [NullAllowed] NSError error);
+
+	public interface ISessionRefreshingStore { }
 
 	// @protocol TWTRSessionRefreshingStore <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRSessionRefreshingStore
+	[BaseType (typeof(NSObject), Name = "TWTRSessionRefreshingStore")]
+	public partial interface SessionRefreshingStore
 	{
 		// @required -(void)refreshSessionClass:(Class _Nonnull)sessionClass sessionID:(NSString * _Nullable)sessionID completion:(TWTRSessionStoreRefreshCompletion _Nonnull)completion;
 		[Abstract]
 		[Export ("refreshSessionClass:sessionID:completion:")]
-		void RefreshSessionClass (Class sessionClass, [NullAllowed] string sessionID, TWTRSessionStoreRefreshCompletion completion);
+		void RefreshSessionClass (Class sessionClass, [NullAllowed] string sessionID, SessionStoreRefreshCompletion completion);
 
 		// @required -(BOOL)isExpiredSession:(id _Nonnull)session response:(NSHTTPURLResponse * _Nonnull)response;
 		[Abstract]
@@ -190,46 +183,46 @@ namespace MonoTouch.Fabric.TwitterCore {
 	}
 
 	// typedef void (^TWTRSessionStoreSaveCompletion)(id<TWTRAuthSession> _Nullable, NSError * _Nullable);
-	public delegate void TWTRSessionStoreSaveCompletion ([NullAllowed] TWTRAuthSession arg0, [NullAllowed] NSError arg1);
+	public delegate void SessionStoreSaveCompletion ([NullAllowed] IAuthSession session, [NullAllowed] NSError error);
 
 	// typedef void (^TWTRSessionStoreBatchFetchCompletion)(NSArray * _Nonnull);
-	public delegate void TWTRSessionStoreBatchFetchCompletion (NSObject[] arg0);
+	public delegate void SessionStoreBatchFetchCompletion (NSObject[] sessions);
 
 	// typedef void (^TWTRSessionStoreDeleteCompletion)(id<TWTRAuthSession> _Nullable);
-	public delegate void TWTRSessionStoreDeleteCompletion ([NullAllowed] TWTRAuthSession arg0);
+	public delegate void SessionStoreDeleteCompletion ([NullAllowed] IAuthSession session);
+
+	public interface IUserSessionStore { }
 
 	// @protocol TWTRUserSessionStore <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRUserSessionStore
+	[BaseType (typeof(NSObject), Name = "TWTRUserSessionStore")]
+	public partial interface UserSessionStore
 	{
 		// @required -(void)saveSession:(id<TWTRAuthSession> _Nonnull)session completion:(TWTRSessionStoreSaveCompletion _Nonnull)completion;
 		[Abstract]
 		[Export ("saveSession:completion:")]
-		void SaveSession (TWTRAuthSession session, TWTRSessionStoreSaveCompletion completion);
+		void SaveSession (IAuthSession session, SessionStoreSaveCompletion completion);
 
 		// @required -(void)saveSessionWithAuthToken:(NSString * _Nonnull)authToken authTokenSecret:(NSString * _Nonnull)authTokenSecret completion:(TWTRSessionStoreSaveCompletion _Nonnull)completion;
 		[Abstract]
 		[Export ("saveSessionWithAuthToken:authTokenSecret:completion:")]
-		void SaveSessionWithAuthToken (string authToken, string authTokenSecret, TWTRSessionStoreSaveCompletion completion);
+		void SaveSession (string authToken, string authTokenSecret, SessionStoreSaveCompletion completion);
 
 		// @required -(id<TWTRAuthSession> _Nullable)sessionForUserID:(NSString * _Nonnull)userID;
 		[Abstract]
 		[Export ("sessionForUserID:")]
 		[return: NullAllowed]
-		TWTRAuthSession SessionForUserID (string userID);
+		IAuthSession SessionForUserID (string userID);
 
 		// @required -(NSArray * _Nonnull)existingUserSessions;
 		[Abstract]
 		[Export ("existingUserSessions")]
-//		[Verify (MethodToProperty), Verify (StronglyTypedNSArray)]
 		NSObject[] ExistingUserSessions { get; }
 
 		// @required -(id<TWTRAuthSession> _Nullable)session;
 		[Abstract]
 		[NullAllowed, Export ("session")]
-//		[Verify (MethodToProperty)]
-		TWTRAuthSession Session { get; }
+		IAuthSession Session { get; }
 
 		// @required -(void)logOutUserID:(NSString * _Nonnull)userID;
 		[Abstract]
@@ -238,32 +231,36 @@ namespace MonoTouch.Fabric.TwitterCore {
 	}
 
 	// typedef void (^TWTRSessionGuestLogInCompletion)(TWTRGuestSession * _Nullable, NSError * _Nullable);
-	public delegate void TWTRSessionGuestLogInCompletion ([NullAllowed] TWTRGuestSession arg0, [NullAllowed] NSError arg1);
+	public delegate void SessionGuestLogInCompletion ([NullAllowed] GuestSession guestSession, [NullAllowed] NSError error);
+
+	public interface IGuestSessionStore { }
 
 	// @protocol TWTRGuestSessionStore <NSObject>
 	[Protocol, Model]
-	[BaseType (typeof(NSObject))]
-	public partial interface TWTRGuestSessionStore
+	[BaseType (typeof(NSObject), Name = "TWTRGuestSessionStore")]
+	public partial interface GuestSessionStore
 	{
 		// @required -(void)fetchGuestSessionWithCompletion:(TWTRSessionGuestLogInCompletion _Nonnull)completion;
 		[Abstract]
 		[Export ("fetchGuestSessionWithCompletion:")]
-		void FetchGuestSessionWithCompletion (TWTRSessionGuestLogInCompletion completion);
+		void FetchGuestSession (SessionGuestLogInCompletion completion);
 	}
 
+	public interface ISessionStore { }
+
 	// @protocol TWTRSessionStore <TWTRUserSessionStore, TWTRGuestSessionStore, TWTRSessionRefreshingStore>
-	[Protocol, Model]
-	public partial interface TWTRSessionStore : TWTRUserSessionStore, TWTRGuestSessionStore, TWTRSessionRefreshingStore
+	[Protocol (Name = "TWTRSessionStore"), Model]
+	public partial interface SessionStore : UserSessionStore, GuestSessionStore, SessionRefreshingStore
 	{
 		// @required @property (readonly, nonatomic) TWTRAuthConfig * _Nonnull authConfig;
 		[Export ("authConfig")]
-		TWTRAuthConfig AuthConfig { get; }
+		AuthConfig AuthConfig { get; }
 	}
 
 	// @interface TWTRSessionStore : NSObject <TWTRSessionStore>
-	[BaseType (typeof(NSObject))]
+	[BaseType (typeof(NSObject), Name = "TWTRSessionStore")]
 	[DisableDefaultCtor]
-	public partial interface TWTRSessionStoreImpl : TWTRSessionStore
+	public partial interface SessionStoreImpl : SessionStore
 	{
 		// -(void)reloadSessionStore;
 		[Export ("reloadSessionStore")]
